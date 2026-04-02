@@ -1,0 +1,109 @@
+{{define "index"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grimoire — MTG Inventory Searcher</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.12" crossorigin="anonymous"></script>
+</head>
+<body>
+    <main class="container">
+        <header>
+            <hgroup>
+                <h1>Grimoire</h1>
+                <p>Check which cards from your wantlist a seller has in stock.</p>
+            </hgroup>
+        </header>
+
+        <form
+            hx-post="/search"
+            hx-target="#results"
+            hx-swap="innerHTML"
+            hx-encoding="multipart/form-data"
+            hx-indicator="#search-indicator"
+        >
+            <fieldset>
+                <legend>Seller Inventory Source <small>(choose one)</small></legend>
+
+                <label>
+                    TCGPlayer Store URL
+                    <input type="url" name="seller_url"
+                        placeholder="https://store.tcgplayer.com/..." />
+                    <small>
+                        &#9888; Automated access may violate TCGPlayer&rsquo;s Terms of Service.
+                        Use at your own risk. This feature requires <a href="#csv-info">Phase 0 research</a>
+                        to implement &mdash; see README.
+                    </small>
+                </label>
+
+                <label>
+                    Or upload a TCGPlayer inventory CSV
+                    <input type="file" name="inventory_csv" accept=".csv" />
+                    <small id="csv-info">
+                        Download from TCGPlayer Seller Portal &rarr; Inventory &rarr; Export All Inventory.
+                        This is the recommended approach.
+                    </small>
+                </label>
+            </fieldset>
+
+            <label>
+                Card Wantlist <abbr title="required">*</abbr>
+                <small>Or import from a deck URL below &darr;</small>
+                <textarea
+                    id="card_list"
+                    name="card_list"
+                    rows="12"
+                    required
+                    placeholder="Paste your card list here — one card per line. Quantities are optional.
+
+Example:
+Sol Ring
+1 Lightning Bolt
+3x Forest
+Mana Crypt"
+                ></textarea>
+            </label>
+
+            <details>
+                <summary>Import from Moxfield or Archidekt deck URL</summary>
+                <div class="import-box"
+                    hx-post="/import"
+                    hx-trigger="submit"
+                    hx-target="#card_list"
+                    hx-swap="innerHTML"
+                    hx-indicator="#import-indicator"
+                >
+                    <div class="import-row">
+                        <input
+                            type="url"
+                            name="deck_url"
+                            placeholder="https://www.moxfield.com/decks/... or https://archidekt.com/decks/..."
+                        />
+                        <button
+                            type="button"
+                            hx-post="/import"
+                            hx-include="[name='deck_url']"
+                            hx-target="#card_list"
+                            hx-swap="innerHTML"
+                            hx-indicator="#import-indicator"
+                        >Import</button>
+                        <span id="import-indicator" class="indicator">Importing&hellip;</span>
+                    </div>
+                    <small>Imports the mainboard + commanders. Maybeboard is excluded.</small>
+                </div>
+            </details>
+
+            <div class="search-actions">
+                <button type="submit">Search Inventory</button>
+                <span id="search-indicator" class="indicator">Searching&hellip;</span>
+            </div>
+        </form>
+
+        <div id="results"></div>
+    </main>
+</body>
+</html>
+{{end}}

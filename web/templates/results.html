@@ -1,0 +1,57 @@
+{{define "results"}}
+{{if .Error}}
+<article class="error-box">
+    <strong>Error</strong><br>
+    {{.Error}}
+</article>
+{{else}}
+<hr>
+<hgroup>
+    <h2>Results</h2>
+    <p>
+        Found <strong>{{.Found}}</strong> of <strong>{{.Total}}</strong> cards in stock{{if gt .NotFound 0}},
+        <strong>{{.NotFound}}</strong> not found{{end}}.
+    </p>
+</hgroup>
+
+{{if gt .Found 0}}
+<h3>&#10003; In Stock ({{.Found}})</h3>
+<figure>
+    <table role="grid">
+        <thead>
+            <tr>
+                <th>Card</th>
+                <th>Set</th>
+                <th>Condition</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {{range .Results}}{{if .Found}}{{range .Listings}}
+            <tr>
+                <td><strong>{{.CardName}}</strong></td>
+                <td>{{if .SetName}}{{.SetName}}{{else}}&mdash;{{end}}</td>
+                <td>{{if .Condition}}{{.Condition}}{{else}}&mdash;{{end}}</td>
+                <td>{{.Qty}}</td>
+                <td>{{if .PriceUSD}}${{printf "%.2f" .PriceUSD}}{{else}}&mdash;{{end}}</td>
+                <td>{{if .URL}}<a href="{{.URL}}" target="_blank" rel="noopener noreferrer">View &#8599;</a>{{end}}</td>
+            </tr>
+        {{end}}{{end}}{{end}}
+        </tbody>
+    </table>
+</figure>
+{{end}}
+
+{{if gt .NotFound 0}}
+<h3>&#10007; Not Found ({{.NotFound}})</h3>
+<ul class="not-found-list">
+{{range .Results}}{{if not .Found}}
+    <li>{{.Entry.Name}}{{if gt .Entry.Qty 1}} <small>&times;{{.Entry.Qty}}</small>{{end}}</li>
+{{end}}{{end}}
+</ul>
+{{end}}
+
+{{end}}
+{{end}}

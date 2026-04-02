@@ -1,0 +1,9 @@
+services:
+  web:
+    build: .
+    ports:
+      - "${PORT:-8081}:8081"
+    environment:
+      PORT: "8081"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+    restart: unless-stopped

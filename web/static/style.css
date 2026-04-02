@@ -1,0 +1,83 @@
+/* Grimoire — custom styles */
+
+/* Deck import */
+details {
+    margin-bottom: var(--pico-spacing);
+}
+
+details summary {
+    cursor: pointer;
+    color: var(--pico-primary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.import-box {
+    padding: 0.75rem 0 0.25rem;
+}
+
+.import-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.import-row input[type="url"] {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 0;
+}
+
+.import-row button {
+    width: auto;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+/* Search actions */
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.search-actions button[type="submit"] {
+    width: auto;
+    margin-bottom: 0;
+}
+
+/* HTMX loading indicator */
+.indicator {
+    display: none;
+    color: var(--pico-muted-color, #666);
+    font-style: italic;
+}
+
+.htmx-request.indicator {
+    display: inline;
+}
+
+/* Results */
+.error-box {
+    border-left: 4px solid var(--pico-del-color, #c0392b);
+    background: var(--pico-card-background-color, #fff);
+    padding: var(--pico-spacing);
+    border-radius: var(--pico-border-radius);
+}
+
+.not-found-list {
+    columns: 2;
+    gap: 1rem;
+}
+
+@media (max-width: 600px) {
+    .not-found-list {
+        columns: 1;
+    }
+}
+
+/* Scrollable table on small screens */
+figure {
+    overflow-x: auto;
+}
