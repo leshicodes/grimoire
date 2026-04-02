@@ -1,6 +1,6 @@
 services:
-  grimoire:
-    image: leshicodes/grimoire:latest
+  web:
+    build: .
     ports:
       - "${PORT:-8081}:8081"
     environment:
