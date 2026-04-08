@@ -14,7 +14,7 @@
         <header>
             <hgroup>
                 <h1>Grimoire</h1>
-                <p>Check which cards from your wantlist a seller has in stock.</p>
+                <p>Search a store&rsquo;s TCGPlayer inventory against your card wantlist.</p>
             </hgroup>
         </header>
 
@@ -25,57 +25,16 @@
             hx-encoding="multipart/form-data"
             hx-indicator="#search-indicator"
         >
-            <fieldset>
-                <legend>Seller Inventory Source <small>(choose one)</small></legend>
-
-                <label>
-                    TCGPlayer Store URL
-                    <input type="url" name="seller_url"
-                        placeholder="https://store.tcgplayer.com/..." />
-                    <small>
-                        &#9888; Automated access may violate TCGPlayer&rsquo;s Terms of Service.
-                        Use at your own risk. This feature requires <a href="#csv-info">Phase 0 research</a>
-                        to implement &mdash; see README.
-                    </small>
-                </label>
-
-                <label>
-                    Or upload a TCGPlayer inventory CSV
-                    <input type="file" name="inventory_csv" accept=".csv" />
-                    <small id="csv-info">
-                        Download from TCGPlayer Seller Portal &rarr; Inventory &rarr; Export All Inventory.
-                        This is the recommended approach.
-                    </small>
-                </label>
-            </fieldset>
-
             <label>
-                Card Wantlist <abbr title="required">*</abbr>
-                <small>Or import from a deck URL below &darr;</small>
-                <textarea
-                    id="card_list"
-                    name="card_list"
-                    rows="12"
-                    required
-                    placeholder="Paste your card list here — one card per line. Quantities are optional.
-
-Example:
-Sol Ring
-1 Lightning Bolt
-3x Forest
-Mana Crypt"
-                ></textarea>
+                TCGPlayer Store URL
+                <input type="url" name="seller_url"
+                    placeholder="https://www.tcgplayer.com/sellers/store-name/..."
+                    value="{{.StoreURL}}" />
             </label>
 
             <details>
-                <summary>Import from Moxfield or Archidekt deck URL</summary>
-                <div class="import-box"
-                    hx-post="/import"
-                    hx-trigger="submit"
-                    hx-target="#card_list"
-                    hx-swap="innerHTML"
-                    hx-indicator="#import-indicator"
-                >
+                <summary>Import card list from a deck URL</summary>
+                <div class="import-box">
                     <div class="import-row">
                         <input
                             type="url"
@@ -92,14 +51,44 @@ Mana Crypt"
                         >Import</button>
                         <span id="import-indicator" class="indicator">Importing&hellip;</span>
                     </div>
-                    <small>Imports the mainboard + commanders. Maybeboard is excluded.</small>
+                    <small>Imports the mainboard and commanders from a Moxfield or Archidekt deck. Maybeboard is excluded.</small>
                 </div>
             </details>
+
+            <label>
+                Card Wantlist <abbr title="required">*</abbr>
+                <textarea
+                    id="card_list"
+                    name="card_list"
+                    rows="12"
+                    required
+                    placeholder="One card per line. Quantities are optional.
+
+Example:
+Sol Ring
+1 Lightning Bolt
+3x Forest"
+                ></textarea>
+            </label>
 
             <div class="search-actions">
                 <button type="submit">Search Inventory</button>
                 <span id="search-indicator" class="indicator">Searching&hellip;</span>
             </div>
+
+            <details>
+                <summary>Upload inventory CSV instead</summary>
+                <div class="import-box">
+                    <label>
+                        TCGPlayer Inventory CSV
+                        <input type="file" name="inventory_csv" accept=".csv" />
+                        <small>
+                            Export from the TCGPlayer Seller Portal: Inventory &rarr; Export All Inventory.
+                            When a CSV is uploaded it takes priority over the store URL above.
+                        </small>
+                    </label>
+                </div>
+            </details>
         </form>
 
         <div id="results"></div>

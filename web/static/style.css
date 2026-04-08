@@ -36,6 +36,7 @@ details summary {
 }
 
 /* Search actions */
+.search-actions {
     display: flex;
     align-items: center;
     gap: 1rem;

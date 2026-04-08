@@ -48,7 +48,10 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		if err := tmpl.ExecuteTemplate(w, "index", nil); err != nil {
+		data := indexData{
+			StoreURL: r.URL.Query().Get("store"),
+		}
+		if err := tmpl.ExecuteTemplate(w, "index", data); err != nil {
 			log.Error().Err(err).Msg("index template failed")
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}
@@ -68,6 +71,11 @@ func main() {
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		log.Fatal().Err(err).Msg("server failed")
 	}
+}
+
+// indexData is the template data passed to the index page.
+type indexData struct {
+	StoreURL string
 }
 
 // resultsData is the template data passed to the "results" partial.
