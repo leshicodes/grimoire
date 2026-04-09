@@ -1,10 +1,13 @@
 # Grimoire
 
+> [!NOTE]
+> **This project is in active development.** Things may change or break. For questions, bug reports, or feedback, [open an issue](https://github.com/leshicodes/grimoire/issues).
+
 Grimoire is a self-hosted web app for checking a TCGPlayer seller's inventory against a card wantlist. Paste in a list of cards (or drop a Moxfield or Archidekt deck URL), point it at a seller, and it'll tell you what they have in stock.
 
 The original use case was local game store discovery: here's my deck, which of these sellers actually has the cards I need?
 
-Deck importing is powered by [Scrybrary](https://github.com/leshicodes/scrybrary).
+Deck importing is powered by [Scrybrary](https://github.com/leshicodes/scrybrary), my companion CLI/library for parsing and fetching MTG decklists.
 
 ---
 
