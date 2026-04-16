@@ -77,6 +77,42 @@ Both can be set in `docker-compose.yml` or as environment variables.
 
 ---
 
+## For Store Owners
+
+Grimoire is designed to be a tool your customers can use **at your store** to check their wantlist against your inventory in real time. Here's how to set it up in about 2 minutes.
+
+### 1. Export your inventory from TCGPlayer
+
+Log into the [TCGPlayer Seller Portal](https://store.tcgplayer.com/), go to **Inventory → Export All Inventory**, and download the CSV file.
+
+### 2. Upload your inventory to Grimoire
+
+Go to [/setup](/setup) (or `https://beta.grimoire.leshicodes.info/setup` on the hosted instance).
+
+- Paste your **TCGPlayer store URL** (e.g. `https://www.tcgplayer.com/sellers/Your-Store/abc123`) — find it by visiting your store page on TCGPlayer and copying the URL from the address bar.
+- Optionally enter a **display name** (how your store appears to customers).
+- Upload the **inventory CSV** you exported in step 1.
+- Hit **Upload Inventory**.
+
+### 3. Get your permanent link and QR code
+
+After uploading you'll see:
+
+- A **permanent store URL** like `https://beta.grimoire.leshicodes.info/s/Your-Store/abc123`
+- A **QR code** — right-click to save it, then print it and put it somewhere customers can see it (counter, table tents, etc.)
+
+The URL and QR code **never change**. When your inventory updates, just re-upload the CSV — same link, fresh data.
+
+### 4. Customers use it
+
+Customers scan the QR code, paste their wantlist (or import a Moxfield/Archidekt deck), and hit Search. They see exactly which cards you have in stock, the condition, and the price.
+
+They can also hit **Share results** to get a 48-hour link they can send to you directly — so you know exactly what to pull from the shelf.
+
+> **Re-upload whenever your inventory changes.** The cached inventory persists until you update it. More frequent updates = more accurate results for customers.
+
+---
+
 ## A note on how this was built
 
 This project uses AI agent assistance. No, I am not vibecoding. When I need to brain dump something into documentation or knock out a straightforward function, I lean on an LLM rather than do it by hand. That said, every line of code here has been read, reasoned about, and signed off on by me.

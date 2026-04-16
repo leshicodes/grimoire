@@ -10,18 +10,43 @@
     <script src="https://unpkg.com/htmx.org@1.9.12" crossorigin="anonymous"></script>
 </head>
 <body>
+    <nav class="container-fluid nav-bar">
+        <ul>
+            <li><a href="/" class="nav-brand"><strong>Grimoire</strong></a></li>
+        </ul>
+        <ul>
+            <li><a href="/stores">Find a Store</a></li>
+            <li><a href="/setup" role="button" class="outline nav-cta">For Store Owners</a></li>
+        </ul>
+    </nav>
+
     <main class="container">
         <header>
             <hgroup>
+                {{if .StoreContext}}
+                <h1>{{.StoreContext.DisplayName}}</h1>
+                <p>Search this store&rsquo;s MTG inventory against your card wantlist.</p>
+                {{else}}
                 <h1>Grimoire</h1>
                 <p>Search a store&rsquo;s TCGPlayer inventory against your card wantlist.</p>
+                {{end}}
             </hgroup>
+            {{if .StoreContext}}
+            <article class="store-banner{{if .StoreContext.LiveMode}} store-banner--live{{end}}">
+                {{if .StoreContext.LiveMode}}
+                &#x1F4E1; <strong>Live search mode</strong> &mdash; This store hasn&rsquo;t uploaded their inventory yet. Searches will query TCGPlayer directly.
+                {{else}}
+                &#x2705; Searching <strong>{{.StoreContext.CardCount}}</strong> cards from <strong>{{.StoreContext.DisplayName}}</strong>&rsquo;s uploaded inventory, last updated {{.StoreContext.UploadedAt.Format "Jan 2, 2006"}}.
+                {{end}}
+            </article>
+            {{else}}
             <p>
                 <small>
                     ⚠️ This project is in active development. Things may change or break.
                     Submit questions and feedback on <a href="https://github.com/leshicodes/grimoire/issues" target="_blank" rel="noopener">GitHub Issues</a>.
                 </small>
             </p>
+            {{end}}
         </header>
 
         <form
@@ -31,12 +56,17 @@
             hx-encoding="multipart/form-data"
             hx-indicator="#search-indicator"
         >
+            {{if .StoreContext}}
+            <input type="hidden" name="store_name" value="{{.StoreContext.StoreName}}" />
+            <input type="hidden" name="seller_key" value="{{.StoreContext.SellerKey}}" />
+            {{else}}
             <label>
                 TCGPlayer Store URL
                 <input type="url" name="seller_url"
                     placeholder="https://www.tcgplayer.com/sellers/store-name/..."
                     value="{{.StoreURL}}" />
             </label>
+            {{end}}
 
             <details>
                 <summary>Import card list from a deck URL</summary>
@@ -82,6 +112,7 @@ Sol Ring
                 <span id="search-indicator" class="indicator">Searching&hellip;</span>
             </div>
 
+            {{if not .StoreContext}}
             <details>
                 <summary>Upload inventory CSV instead</summary>
                 <div class="import-box">
@@ -95,6 +126,7 @@ Sol Ring
                     </label>
                 </div>
             </details>
+            {{end}}
         </form>
 
         <div id="results"></div>

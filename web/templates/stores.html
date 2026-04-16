@@ -1,0 +1,52 @@
+{{define "stores"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grimoire — Find a Store</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="container-fluid nav-bar">
+        <ul>
+            <li><a href="/" class="nav-brand"><strong>Grimoire</strong></a></li>
+        </ul>
+        <ul>
+            <li><a href="/stores">Find a Store</a></li>
+            <li><a href="/setup" role="button" class="outline nav-cta">For Store Owners</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <header>
+            <hgroup>
+                <h1>Find a Store</h1>
+                <p>Stores that have uploaded their inventory to Grimoire. Click any store to search their stock.</p>
+            </hgroup>
+        </header>
+
+        {{if .}}
+        <div class="stores-grid">
+            {{range .}}
+            <a href="/s/{{.StoreName}}/{{.SellerKey}}" class="store-card-link">
+                <article class="store-card">
+                    <h3>{{.DisplayName}}{{if not .HasCSV}} <small class="live-badge">Live</small>{{end}}</h3>
+                    {{if .HasCSV}}
+                    <p>{{.CardCount}} cards &mdash; updated {{.UploadedAt.Format "Jan 2, 2006"}}</p>
+                    {{else}}
+                    <p>Live search &mdash; no inventory uploaded yet</p>
+                    {{end}}
+                </article>
+            </a>
+            {{end}}
+        </div>
+        {{else}}
+        <p>No stores have uploaded their inventory yet.</p>
+        <p>Are you a store owner? <a href="/setup">Get set up here</a> &mdash; it takes about 2 minutes.</p>
+        {{end}}
+    </main>
+</body>
+</html>
+{{end}}

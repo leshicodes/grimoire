@@ -1,0 +1,131 @@
+{{define "shared"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grimoire — Shared Results</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="container-fluid nav-bar">
+        <ul>
+            <li><a href="/" class="nav-brand"><strong>Grimoire</strong></a></li>
+        </ul>
+        <ul>
+            <li><a href="/stores">Find a Store</a></li>
+            <li><a href="/setup" role="button" class="outline nav-cta">For Store Owners</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        {{if .Expired}}
+        <header>
+            <hgroup>
+                <h1>Link Expired</h1>
+                <p>This shared results link has expired or doesn&rsquo;t exist. Shared searches are kept for 48 hours.</p>
+            </hgroup>
+        </header>
+        <a href="/">Search again &rarr;</a>
+
+        {{else}}
+        <header>
+            <hgroup>
+                <h1>Shared Search{{if .Session.DisplayName}} &mdash; {{.Session.DisplayName}}{{end}}</h1>
+                <p>Results shared on {{.Session.SavedAt.Format "Jan 2, 2006"}}. This link expires 48 hours after it was created.</p>
+            </hgroup>
+            <article class="store-banner">
+                &#x2139;&#xFE0F; This is a read-only snapshot. Prices and availability may have changed.
+                {{if .Session.StoreName}}<a href="/s/{{.Session.StoreName}}/{{.Results.SellerKey}}">Search this store now &rarr;</a>{{end}}
+            </article>
+        </header>
+
+        <hgroup>
+            <h2>Results</h2>
+            <p>
+                Found <strong>{{.Results.Found}}</strong> of <strong>{{.Results.Total}}</strong> cards in stock{{if gt .Results.NotFound 0}},
+                <strong>{{.Results.NotFound}}</strong> not found{{end}}.
+                {{if gt .Results.Found 0}}&mdash; <strong>{{.Results.CompletionPct}}%</strong> of the list available.{{end}}
+            </p>
+            {{if .Results.TotalCost}}
+            <p>Estimated subtotal for in-stock cards: <strong>${{printf "%.2f" .Results.TotalCost}}</strong></p>
+            {{end}}
+        </hgroup>
+
+        {{if gt .Results.Found 0}}
+        <h3>&#10003; In Stock ({{.Results.Found}})</h3>
+        <figure>
+            <table role="grid" id="results-table">
+                <thead>
+                    <tr>
+                        <th data-col="0" class="sortable">Card <span class="sort-icon">⇅</span></th>
+                        <th data-col="1" class="sortable">Set <span class="sort-icon">⇅</span></th>
+                        <th data-col="2" class="sortable">Condition <span class="sort-icon">⇅</span></th>
+                        <th data-col="3" class="sortable">Qty <span class="sort-icon">⇅</span></th>
+                        <th data-col="4" class="sortable">Price <span class="sort-icon">⇅</span></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{range .Results.Results}}{{if .Found}}{{range .Listings}}
+                    <tr>
+                        <td><strong>{{.CardName}}</strong></td>
+                        <td>{{if .SetName}}{{.SetName}}{{else}}&mdash;{{end}}</td>
+                        <td>{{if .Condition}}{{.Condition}}{{else}}&mdash;{{end}}</td>
+                        <td>{{.Qty}}</td>
+                        <td>{{if .PriceUSD}}${{printf "%.2f" .PriceUSD}}{{else}}&mdash;{{end}}</td>
+                        <td>{{if .URL}}<a href="{{.URL}}" target="_blank" rel="noopener noreferrer">View &#8599;</a>{{end}}</td>
+                    </tr>
+                {{end}}{{end}}{{end}}
+                </tbody>
+            </table>
+        </figure>
+        <script>
+        (function () {
+            function sortTable(table, col, asc) {
+                var tbody = table.querySelector('tbody');
+                var rows = Array.from(tbody.querySelectorAll('tr'));
+                rows.sort(function (a, b) {
+                    var aVal = a.cells[col].textContent.trim();
+                    var bVal = b.cells[col].textContent.trim();
+                    var aNum = parseFloat(aVal.replace(/[^0-9.]/g, ''));
+                    var bNum = parseFloat(bVal.replace(/[^0-9.]/g, ''));
+                    if (!isNaN(aNum) && !isNaN(bNum)) return asc ? aNum - bNum : bNum - aNum;
+                    return asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                });
+                rows.forEach(function (row) { tbody.appendChild(row); });
+            }
+            var table = document.getElementById('results-table');
+            if (!table) return;
+            var headers = table.querySelectorAll('th.sortable');
+            var sortState = { col: -1, asc: true };
+            headers.forEach(function (th) {
+                th.style.cursor = 'pointer';
+                th.addEventListener('click', function () {
+                    var col = parseInt(th.getAttribute('data-col'));
+                    sortState.asc = sortState.col === col ? !sortState.asc : true;
+                    sortState.col = col;
+                    headers.forEach(function (h) { h.querySelector('.sort-icon').textContent = '⇅'; });
+                    th.querySelector('.sort-icon').textContent = sortState.asc ? '↑' : '↓';
+                    sortTable(table, col, sortState.asc);
+                });
+            });
+        })();
+        </script>
+        {{end}}
+
+        {{if gt .Results.NotFound 0}}
+        <h3>&#10007; Not Found ({{.Results.NotFound}})</h3>
+        <ul class="not-found-list">
+        {{range .Results.Results}}{{if not .Found}}
+            <li>{{.Entry.Name}}{{if gt .Entry.Qty 1}} <small>&times;{{.Entry.Qty}}</small>{{end}}</li>
+        {{end}}{{end}}
+        </ul>
+        {{end}}
+
+        {{end}}
+    </main>
+</body>
+</html>
+{{end}}

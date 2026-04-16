@@ -19,5 +19,5 @@ COPY --from=builder /app/grimoire .
 
 USER app
 
-EXPOSE 8080
+EXPOSE 8081
 CMD ["./grimoire"]

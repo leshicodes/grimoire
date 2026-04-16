@@ -44,6 +44,29 @@ func NewHTTPClient() *HTTPClient {
 	}
 }
 
+// ParseSellerURL extracts the store name and seller key from a TCGPlayer seller URL.
+// Expected format: https://www.tcgplayer.com/sellers/{storeName}/{sellerKey}
+func ParseSellerURL(rawURL string) (storeName, sellerKey string, err error) {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid seller URL %q: %w", rawURL, err)
+	}
+	// Path: /sellers/Battle-Trading-Cards/fc861742
+	segments := strings.Split(strings.Trim(u.Path, "/"), "/")
+	if len(segments) < 3 || segments[0] != "sellers" {
+		return "", "", fmt.Errorf(
+			"seller URL must be https://www.tcgplayer.com/sellers/{store-name}/{seller-key}, got: %s",
+			rawURL,
+		)
+	}
+	storeName = segments[1]
+	sellerKey = segments[len(segments)-1]
+	if storeName == "" || sellerKey == "" || storeName == sellerKey {
+		return "", "", fmt.Errorf("could not extract store name or seller key from URL: %s", rawURL)
+	}
+	return storeName, sellerKey, nil
+}
+
 // SearchInventory looks up each card name in a seller's TCGPlayer inventory.
 // sellerURL must be a TCGPlayer seller store URL, e.g.:
 //
@@ -55,7 +78,10 @@ func (c *HTTPClient) SearchInventory(ctx context.Context, sellerURL string, card
 	}
 
 	var all []SellerListing
-	for _, name := range cardNames {
+	for i, name := range cardNames {
+		if i > 0 {
+			time.Sleep(50 * time.Millisecond)
+		}
 		listings, err := c.searchInventoryByName(ctx, sellerKey, name)
 		if err != nil {
 			return nil, fmt.Errorf("searching %q: %w", name, err)
@@ -66,26 +92,9 @@ func (c *HTTPClient) SearchInventory(ctx context.Context, sellerURL string, card
 }
 
 // resolveSeller extracts the seller key from a TCGPlayer store URL.
-// Expected format: https://www.tcgplayer.com/sellers/{store-name}/{seller-key}
 func (c *HTTPClient) resolveSeller(_ context.Context, storeURL string) (string, error) {
-	u, err := url.Parse(storeURL)
-	if err != nil {
-		return "", fmt.Errorf("invalid seller URL %q: %w", storeURL, err)
-	}
-
-	// Path: /sellers/Battle-Trading-Cards/fc861742
-	segments := strings.Split(strings.Trim(u.Path, "/"), "/")
-	if len(segments) < 2 || segments[0] != "sellers" {
-		return "", fmt.Errorf(
-			"seller URL must be https://www.tcgplayer.com/sellers/{store-name}/{seller-key}, got: %s",
-			storeURL,
-		)
-	}
-	key := segments[len(segments)-1]
-	if key == "" {
-		return "", fmt.Errorf("could not extract seller key from URL: %s", storeURL)
-	}
-	return key, nil
+	_, key, err := ParseSellerURL(storeURL)
+	return key, err
 }
 
 // searchInventoryByName queries a seller's inventory for a single card name,
