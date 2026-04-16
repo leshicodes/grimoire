@@ -11,20 +11,43 @@
     <p>
         Found <strong>{{.Found}}</strong> of <strong>{{.Total}}</strong> cards in stock{{if gt .NotFound 0}},
         <strong>{{.NotFound}}</strong> not found{{end}}.
+        {{if gt .Found 0}}&mdash; <strong>{{.CompletionPct}}%</strong> of your list available.{{end}}
     </p>
+    {{if .TotalCost}}
+    <p>Estimated subtotal for in-stock cards: <strong>${{printf "%.2f" .TotalCost}}</strong></p>
+    {{end}}
 </hgroup>
 
 {{if gt .Found 0}}
+<div class="results-actions">
+    <button type="button" class="outline" onclick="copyFoundCards()">Copy found cards</button>
+    {{if .SessionID}}
+    <button type="button" class="outline" onclick="copyShareLink('{{.SessionID}}')">Share results</button>
+    {{end}}
+</div>
+{{if .SessionID}}
+<div id="share-link-box" style="display:none" class="share-box">
+    <label>
+        Shareable link <small>(expires in 48 hours)</small>
+        <div class="copy-row">
+            <input type="text" id="share-url-input" readonly />
+            <button type="button" class="outline" onclick="copyShareURL()">Copy</button>
+        </div>
+    </label>
+</div>
+{{end}}
+<textarea id="found-names-data" class="sr-only" readonly aria-hidden="true">{{.FoundNames}}</textarea>
+
 <h3>&#10003; In Stock ({{.Found}})</h3>
 <figure>
-    <table role="grid">
+    <table role="grid" id="results-table">
         <thead>
             <tr>
-                <th>Card</th>
-                <th>Set</th>
-                <th>Condition</th>
-                <th>Qty</th>
-                <th>Price</th>
+                <th data-col="0" class="sortable">Card <span class="sort-icon">⇅</span></th>
+                <th data-col="1" class="sortable">Set <span class="sort-icon">⇅</span></th>
+                <th data-col="2" class="sortable">Condition <span class="sort-icon">⇅</span></th>
+                <th data-col="3" class="sortable">Qty <span class="sort-icon">⇅</span></th>
+                <th data-col="4" class="sortable">Price <span class="sort-icon">⇅</span></th>
                 <th></th>
             </tr>
         </thead>
@@ -42,6 +65,66 @@
         </tbody>
     </table>
 </figure>
+<script>
+(function () {
+    function sortTable(table, col, asc) {
+        var tbody = table.querySelector('tbody');
+        var rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort(function (a, b) {
+            var aVal = a.cells[col].textContent.trim();
+            var bVal = b.cells[col].textContent.trim();
+            var aNum = parseFloat(aVal.replace(/[^0-9.]/g, ''));
+            var bNum = parseFloat(bVal.replace(/[^0-9.]/g, ''));
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+                return asc ? aNum - bNum : bNum - aNum;
+            }
+            return asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        });
+        rows.forEach(function (row) { tbody.appendChild(row); });
+    }
+    var table = document.getElementById('results-table');
+    if (!table) return;
+    var headers = table.querySelectorAll('th.sortable');
+    var sortState = { col: -1, asc: true };
+    headers.forEach(function (th) {
+        th.style.cursor = 'pointer';
+        th.addEventListener('click', function () {
+            var col = parseInt(th.getAttribute('data-col'));
+            sortState.asc = sortState.col === col ? !sortState.asc : true;
+            sortState.col = col;
+            headers.forEach(function (h) { h.querySelector('.sort-icon').textContent = '⇅'; });
+            th.querySelector('.sort-icon').textContent = sortState.asc ? '↑' : '↓';
+            sortTable(table, col, sortState.asc);
+        });
+    });
+})();
+function copyFoundCards() {
+    var ta = document.getElementById('found-names-data');
+    if (!ta) return;
+    navigator.clipboard.writeText(ta.value).then(function () {
+        var btn = document.querySelector('[onclick="copyFoundCards()"]');
+        if (btn) { btn.textContent = 'Copied!'; setTimeout(function () { btn.textContent = 'Copy found cards'; }, 2000); }
+    });
+}
+function copyShareLink(id) {
+    var shareURL = window.location.origin + '/r/' + id;
+    var box = document.getElementById('share-link-box');
+    var input = document.getElementById('share-url-input');
+    if (box && input) {
+        input.value = shareURL;
+        box.style.display = '';
+    }
+    navigator.clipboard.writeText(shareURL);
+}
+function copyShareURL() {
+    var input = document.getElementById('share-url-input');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value).then(function () {
+        var btn = input.nextElementSibling;
+        if (btn) { btn.textContent = 'Copied!'; setTimeout(function () { btn.textContent = 'Copy'; }, 2000); }
+    });
+}
+</script>
 {{end}}
 
 {{if gt .NotFound 0}}
@@ -55,3 +138,5 @@
 
 {{end}}
 {{end}}
+
+

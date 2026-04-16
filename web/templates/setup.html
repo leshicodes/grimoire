@@ -1,0 +1,139 @@
+{{define "setup"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grimoire — Store Setup</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.12" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav class="container-fluid nav-bar">
+        <ul>
+            <li><a href="/" class="nav-brand"><strong>Grimoire</strong></a></li>
+        </ul>
+        <ul>
+            <li><a href="/stores">Find a Store</a></li>
+            <li><a href="/setup" role="button" class="outline nav-cta">For Store Owners</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <header>
+            <hgroup>
+                <h1>Store Setup</h1>
+                <p>Upload your TCGPlayer inventory once. Get a permanent link and QR code your customers can use anytime.</p>
+            </hgroup>
+        </header>
+
+        <article>
+            <h2>How it works</h2>
+            <ol>
+                <li>Paste your TCGPlayer store URL below.</li>
+                <li>Optionally, export your inventory CSV from the <strong>TCGPlayer Seller Portal</strong> under Inventory &rarr; Export All Inventory and upload it here. This makes searches instant and avoids scraping. You can skip this and add it later.</li>
+                <li>You&rsquo;ll get a permanent store link and a QR code. Print the QR code and put it on your counter.</li>
+                <li>Customers scan the QR, paste their wantlist, and see exactly what you have in stock &mdash; no account needed.</li>
+            </ol>
+            <p><small>Re-upload your CSV anytime to refresh the inventory. The QR code and link stay the same forever.</small></p>
+        </article>
+
+        <form
+            hx-post="/upload"
+            hx-target="#upload-result"
+            hx-swap="innerHTML"
+            hx-encoding="multipart/form-data"
+            hx-indicator="#upload-indicator"
+        >
+            <label>
+                TCGPlayer Store URL <abbr title="required">*</abbr>
+                <input
+                    type="url"
+                    name="seller_url"
+                    required
+                    placeholder="https://www.tcgplayer.com/sellers/Your-Store/abc123"
+                />
+                <small>Find this by visiting your store page on TCGPlayer. Copy the full URL from the address bar.</small>
+            </label>
+
+            <label>
+                Display Name
+                <input
+                    type="text"
+                    name="display_name"
+                    placeholder="e.g. Dragon&apos;s Lair Games"
+                    maxlength="80"
+                />
+                <small>How your store appears to customers. Defaults to the store name from the URL if left blank.</small>
+            </label>
+
+            <label>
+                Inventory CSV <small>(optional)</small>
+                <input type="file" name="inventory_csv" accept=".csv" />
+                <small>
+                    Export from the TCGPlayer Seller Portal: Inventory &rarr; Export All Inventory.
+                    If you skip this, customers can still search your store &mdash; searches will query TCGPlayer directly.
+                    You can upload a CSV later to make searches faster and avoid any scraping concerns.
+                </small>
+            </label>
+
+            <div class="search-actions">
+                <button type="submit">Upload Inventory</button>
+                <span id="upload-indicator" class="indicator">Uploading&hellip;</span>
+            </div>
+        </form>
+
+        <div id="upload-result"></div>
+    </main>
+</body>
+</html>
+{{end}}
+
+{{define "upload-result"}}
+<hr>
+<article class="upload-success">
+    <hgroup>
+        <h2>&#x2705; Store registered!</h2>
+        <p>
+            <strong>{{.DisplayName}}</strong>
+            {{if .HasCSV}}&mdash; {{.CardCount}} cards indexed.{{else}}&mdash; <em>No CSV uploaded. Searches will query TCGPlayer live.</em>{{end}}
+        </p>
+    </hgroup>
+
+    {{if not .HasCSV}}
+    <article class="store-banner store-banner--live">
+        &#x1F4E1; <strong>Live search mode</strong> &mdash; Customers can search your store, but results are fetched from TCGPlayer in real time (slower, and carries some ToS risk).
+        Upload an inventory CSV here anytime to enable fast cached search. Your link and QR code will stay the same.
+    </article>
+    {{end}}
+
+    <label>
+        Your store&rsquo;s permanent search link
+        <div class="copy-row">
+            <input type="text" id="store-url-input" value="{{.StoreURL}}" readonly />
+            <button type="button" class="outline" onclick="copyStoreURL()">Copy</button>
+        </div>
+        <small>This link never changes. Share it digitally or encode it in a QR code below.</small>
+    </label>
+
+    <figure class="qr-figure">
+        <img src="{{.QRCodeURL}}" alt="QR code for {{.DisplayName}}" width="256" height="256" />
+        <figcaption>Right-click &rarr; Save image. Print it and put it on your counter.</figcaption>
+    </figure>
+
+    <a href="{{.StoreURL}}" role="button" class="outline" target="_blank" rel="noopener">
+        Preview customer view &#8599;
+    </a>
+</article>
+<script>
+function copyStoreURL() {
+    var input = document.getElementById('store-url-input');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value).then(function () {
+        var btn = input.nextElementSibling;
+        if (btn) { btn.textContent = 'Copied!'; setTimeout(function () { btn.textContent = 'Copy'; }, 2000); }
+    });
+}
+</script>
+{{end}}

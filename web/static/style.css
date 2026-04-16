@@ -1,5 +1,54 @@
 /* Grimoire — custom styles */
 
+/* Nav bar */
+.nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    margin-bottom: 1.5rem;
+}
+
+.nav-bar ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-bar li {
+    margin: 0;
+    padding: 0;
+}
+
+.nav-brand {
+    font-size: 1.1rem;
+    text-decoration: none;
+}
+
+.nav-cta {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+/* Store banner */
+.store-banner {
+    padding: 0.75rem 1rem;
+    border-radius: var(--pico-border-radius);
+    background: var(--pico-card-background-color);
+    border-left: 4px solid var(--pico-primary);
+    margin-bottom: 1rem;
+}
+
+.store-banner--live {
+    border-left-color: var(--pico-color-amber-500, #f59e0b);
+}
+
 /* Deck import */
 details {
     margin-bottom: var(--pico-spacing);
@@ -35,7 +84,7 @@ details summary {
     white-space: nowrap;
 }
 
-/* Search actions */
+/* Search / upload actions */
 .search-actions {
     display: flex;
     align-items: center;
@@ -43,7 +92,8 @@ details summary {
     margin-top: 0.5rem;
 }
 
-.search-actions button[type="submit"] {
+.search-actions button[type="submit"],
+.search-actions button[type="button"] {
     width: auto;
     margin-bottom: 0;
 }
@@ -57,6 +107,43 @@ details summary {
 
 .htmx-request.indicator {
     display: inline;
+}
+
+/* Results actions */
+.results-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.results-actions button {
+    width: auto;
+    margin-bottom: 0;
+}
+
+/* Sortable table headers */
+th.sortable {
+    user-select: none;
+    white-space: nowrap;
+}
+
+.sort-icon {
+    font-size: 0.8em;
+    opacity: 0.5;
+    margin-left: 0.25em;
+}
+
+/* Screen-reader only (for copy textarea) */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 /* Results */
@@ -77,6 +164,88 @@ details summary {
         columns: 1;
     }
 }
+
+figure {
+    overflow-x: auto;
+}
+
+/* Setup page */
+.upload-success {
+    border-left: 4px solid var(--pico-primary);
+}
+
+.share-box {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--pico-border-radius);
+    background: var(--pico-card-background-color);
+    border-left: 4px solid var(--pico-primary);
+}
+
+.copy-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.copy-row input[type="text"] {
+    flex: 1;
+    margin-bottom: 0;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.copy-row button {
+    width: auto;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.qr-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+}
+
+.qr-figure img {
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+}
+
+/* Store directory */
+.stores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.store-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.store-card {
+    margin-bottom: 0;
+    transition: box-shadow 0.15s;
+}
+
+.store-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.store-card h3 {
+    margin-bottom: 0.25rem;
+}
+
+.store-card p {
+    margin-bottom: 0;
+    color: var(--pico-muted-color);
+    font-size: 0.9rem;
+}
+
 
 /* Scrollable table on small screens */
 figure {
